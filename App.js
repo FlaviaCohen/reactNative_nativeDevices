@@ -6,10 +6,33 @@ import AllPlaces from "./screens/AllPlaces";
 import AddPlace from "./screens/AddPlace";
 import IconButton from "./components/ui/IconButton";
 import { Colors } from "./constants/colors";
+import Map from "./screens/Map";
+import { useEffect, useState } from "react";
+import { init } from "./utils/db";
+import AppLoading from "expo-app-loading";
+import PlaceDetail from "./screens/PlaceDetail";
 
 const { Navigator, Screen } = createNativeStackNavigator();
 
 export default function App() {
+  const [dbInitialized, setDbInitialized] = useState();
+
+  const dbHandler = async () => {
+    try {
+      await init();
+      setDbInitialized(true);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    dbHandler();
+  }, []);
+
+  if (!dbInitialized) {
+    return <AppLoading />;
+  }
   return (
     <>
       <StatusBar style="dark" />
@@ -43,6 +66,12 @@ export default function App() {
               title: "Add a new place",
               headerBackTitle: "Back",
             }}
+          />
+          <Screen name="Map" component={Map} />
+          <Screen
+            name="PlaceDetails"
+            component={PlaceDetail}
+            options={{ title: "Loading Place..." }}
           />
         </Navigator>
       </NavigationContainer>
